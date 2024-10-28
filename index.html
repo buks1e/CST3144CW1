@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>After School CLub</title>
+        <script src="https://unpkg.com/vue@2.7.8/dist/vue.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    </head>
+    <body>
+        <div id="app">
+            <header>
+                <h1 v-text="sitename"></h1>
+                <button v-on:click="showCheckout">
+                    {{ cartItemCount }}
+                    <span class="fas fa-cart-plus"></span> 
+                    Checkout
+                </button>
+            </header>
+            <div v-if="showProduct">
+                <img v-bind:src="club.image" v-bind:alt="club.alt" style="height: 125px; width: 125px; display: inline-block;">
+                <div id="info" style="display: inline-block;">
+                    <h2 v-text="club.subject"></h2>
+                    <p>Location: {{club.location}}</p>
+                    <p>Price: {{club.price}}</p>
+                    <p>Spaces: {{club.availableSlots}}</p>
+                </div>
+                <button v-on:click="addCart" v-if="canAddToCart">Add to Cart</button>
+                <button disabled="disabled" v-else>Add to Cart</button>
+            </div>
+
+            <div v-else>
+                <h2>Checkout</h2>
+                <p>
+                    <strong>First Name:</strong>
+                    <input v-model.trim="order.firstName">
+                </p>
+                <p>
+                    <strong>Last Name:</strong>
+                    <input v-model.trim="order.lastName">
+                </p>
+                <p><strong>Phone Number:</strong> <input v-model="order.phone"></p>
+                    <strong>Emirate:</strong>
+                    <select v-model="order.emirate">
+                        <option disabled>--Emirate--</option>
+                        <option v-for="(emirate, key) in emirates" v-bind:value="emirate">{{emirate}}</option>
+                    </select>
+                </p>
+
+                <h2>Order Information</h2>
+                <p>First Name: {{order.firstName}}</p>
+                <p>Last Name: {{order.lastName}}</p>
+                <p>Phone Number: {{order.phone}}</p>
+                <p>Emirate: {{order.emirate}}</p>
+
+                <button v-on:click="submitForm">Place Order</button>
+            </div>
+        </div>
+        <script>
+            let app = new Vue ({
+                el: '#app',
+                data: {
+                    showProduct: true,
+                    sitename: "After School Club",
+                    cart: [],
+                    club:{
+                        id:1,
+                        subject: 'Music',
+                        location: "Music Room",
+                        price: 500,
+                        availableSlots: 5,
+                        image: "images/music_icon.png",
+                        alt: 'Music Club Icon'
+                    },
+                    order: {
+                        firstName: '',
+                        lastName: '',
+                        phone: '',
+                        emirate: '',
+                    },
+                    emirates: {
+                        Du: 'Dubai',
+                        Ad: 'Abu Dhabi',
+                        Sh: 'Sharjah',
+                        Aj: 'Ajman'
+                    }
+                },
+                methods: {
+                    addCart: function() {
+                        this.cart.push(this.club.id);
+                        this.club.availableSlots --;
+                    },
+                    showCheckout: function(){
+                        this.showProduct = this.showProduct ? false:true;
+                    },
+                    submitForm: function() {
+                        alert('Order Placed');
+                    }
+                },
+                computed:{
+                    cartItemCount: function(){
+                        return this.cart.length || "";
+                    },
+                    canAddToCart: function(){
+                        return this.club.availableSlots > 0;
+                    }
+                }
+
+            });
+        </script>
+    </body>
+</html>
