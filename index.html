@@ -1,33 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>After School CLub</title>
+        <title>After School Club</title>
         <script src="https://unpkg.com/vue@2.7.8/dist/vue.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+        <link rel="stylesheet" href="style.css">
     </head>
     <body>
         <div id="app">
             <header>
-                <h1 v-text="sitename"></h1>
-                <button v-on:click="showCheckout">
+                <h1 v-text="sitename" style="text-align: center;"></h1>
+                <button v-if="cartItemCount != '' || showProduct == false" v-on:click="showCheckout">
                     {{ cartItemCount }}
                     <span class="fas fa-cart-plus"></span> 
                     Checkout
                 </button>
+                <button v-else disabled>
+                    <span class="fas fa-cart-plus"></span> 
+                    Checkout</button>
             </header>
+
             <div v-if="showProduct">
-                <img v-bind:src="club.image" v-bind:alt="club.alt" style="height: 125px; width: 125px; display: inline-block;">
-                <div id="info" style="display: inline-block;">
-                    <h2 v-text="club.subject"></h2>
-                    <p>Location: {{club.location}}</p>
-                    <p>Price: {{club.price}}</p>
-                    <p>Spaces: {{club.availableSlots}}</p>
+                <div class="prodPage" style="width: 10%;">
+                    <h2>Sort By</h3>
+                    <p><input type="radio" value="0" v-model="sortSetting">Name</p>
+                    <p><input type="radio" value="1" v-model="sortSetting">Location</p>
+                    <p><input type="radio" value="2" v-model="sortSetting">Price</p>
+                    <p><input type="radio" value="3" v-model="sortSetting">Availability</p>
+                    <h2>Sort Order</h3>
+                    <p><input type="radio" value="1" v-model="sortOrder">Ascending</p> 
+                    <p><input type="radio" value="-1" v-model="sortOrder">Descending</p>
                 </div>
-                <button v-on:click="addCart" v-if="canAddToCart">Add to Cart</button>
-                <button disabled="disabled" v-else>Add to Cart</button>
+                <div class="prodPage">
+                    <div style="display: inline-flex;flex-flow:wrap;">
+                        <div class="items" v-for="club in sortedClubs">
+                            <img v-bind:src="club.image" v-bind:alt="club.alt" style="height: 125px; width: 125px; display: inline-block;">
+                            <div id="info" style="display: inline-block;">
+                                <h2 v-text="club.subject"></h2>
+                                <p>Location: {{club.location}}</p>
+                                <p>Price: {{club.price}}</p>
+                                <p>Spaces: {{club.availableSlots}}</p>
+                                <p>
+                                    <span v-for="n in club.rating">★</span>
+                                    <span v-for="n in 5 - club.rating">☆</span>
+                                </p>
+                            </div>
+                            <button v-on:click="addCart(club)" v-if="canAddToCart(club)">Add to Cart</button>
+                            <button disabled="disabled" v-else>Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div v-else>
+                <h2>Cart Items</h2>
+                <div style="display: inline-flex;align-items: flex-end;margin: 1%;" v-for="club in cartDisplay">
+                    <img v-bind:src="club.image" v-bind:alt="club.alt" style="height: 125px; width: 125px; display: inline-block;">
+                    <div id="info" style="display: inline-block;">
+                        <h2 v-text="club.subject"></h2>
+                        <p>Location: {{club.location}}</p>
+                        <p>Price: {{club.price}}</p>
+                        <p>Spaces reserved: {{club.count}}</p >
+                    </div>
+                    <button v-on:click="removeFromCart(club)">Remove from Cart</button>
+                </div>
+                <div v-if="cartItemCount == ''"><p>Cart is Empty</p></div>
                 <h2>Checkout</h2>
                 <p>
                     <strong>First Name:</strong>
@@ -37,7 +74,7 @@
                     <strong>Last Name:</strong>
                     <input v-model.trim="order.lastName">
                 </p>
-                <p><strong>Phone Number:</strong> <input v-model="order.phone"></p>
+                <p><strong>Phone Number:</strong> <input v-model.number="order.phone" type="number"></p>
                     <strong>Emirate:</strong>
                     <select v-model="order.emirate">
                         <option disabled>--Emirate--</option>
@@ -51,25 +88,21 @@
                 <p>Phone Number: {{order.phone}}</p>
                 <p>Emirate: {{order.emirate}}</p>
 
-                <button v-on:click="submitForm">Place Order</button>
+                <button v-if="cartItemCount != ''" v-on:click="submitForm">Place Order</button>
+                <button v-else disabled v-on:click="submitForm">Place Order</button>
             </div>
         </div>
+        <script src="clubs.js"></script>
         <script>
             let app = new Vue ({
                 el: '#app',
                 data: {
+                    sortSetting: 0,
+                    sortOrder: 1,
                     showProduct: true,
                     sitename: "After School Club",
                     cart: [],
-                    club:{
-                        id:1,
-                        subject: 'Music',
-                        location: "Music Room",
-                        price: 500,
-                        availableSlots: 5,
-                        image: "images/music_icon.png",
-                        alt: 'Music Club Icon'
-                    },
+                    clubs: clubs,
                     order: {
                         firstName: '',
                         lastName: '',
@@ -84,23 +117,87 @@
                     }
                 },
                 methods: {
-                    addCart: function() {
-                        this.cart.push(this.club.id);
-                        this.club.availableSlots --;
+                    addCart: function(club) {
+                        this.cart.push(club.id);
+                        club.availableSlots --;
                     },
                     showCheckout: function(){
                         this.showProduct = this.showProduct ? false:true;
                     },
                     submitForm: function() {
                         alert('Order Placed');
+                    },
+                    canAddToCart: function(club){
+                        return club.availableSlots > 0;
+                    },
+                    removeFromCart: function(club){
+                        let toRemove = this.cart.indexOf(club.id);
+                        this.cart.splice(toRemove, 1);
+                        club.availableSlots ++;
                     }
+
                 },
                 computed:{
                     cartItemCount: function(){
                         return this.cart.length || "";
                     },
-                    canAddToCart: function(){
-                        return this.club.availableSlots > 0;
+                    sortedClubs() {
+                        let clubsArray = this.clubs.slice(0);
+                        let sort = this.sortOrder
+                        if(this.sortSetting == 1) {
+                            function compare(a,b) { 
+                                if (a.location > b.location)
+                                    return sort;
+                                if (a.location < b.location)
+                                    return -sort;
+                                return 0;
+                            }
+                        }
+                        else if(this.sortSetting == 2) {
+                            function compare(a,b) { 
+                                if (a.price > b.price)
+                                    return sort;
+                                if (a.price < b.price)
+                                    return -sort;
+                                return 0;
+                            }
+                        }
+                        else if(this.sortSetting == 3) {
+                            function compare(a,b) { 
+                                if (a.availableSlots > b.availableSlots)
+                                    return sort;
+                                if (a.availableSlots < b.availableSlots)
+                                    return -sort;
+                                return 0;
+                            }
+                        }
+                        else{
+                            function compare(a,b) { 
+                                if (a.subject > b.subject)
+                                    return sort;
+                                if (a.subject < b.subject)
+                                    return -sort;
+                                return 0;
+                            }
+                        }
+
+                        return clubsArray.sort(compare); 
+                    },
+                    cartDisplay: function(){
+                        //create seperate list of lessons
+                        let clubsArray = this.clubs.slice(0);
+
+                        //adding a count property to each lesson object to count each time it appears in the cart
+                        clubsArray.forEach(item => {item.count = 0;});
+                        
+                        // Count occurrences in the cart
+                        for (let i of this.cart) {
+                            let j = clubsArray.find(item => item.id == i);
+                            if (j != undefined) {j.count++;}
+                        }
+
+                        // Filter clubs that are in the cart
+                        return clubsArray.filter(j => j.count > 0);
                     }
                 }
 

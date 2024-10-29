@@ -1,0 +1,18 @@
+.prodPage{
+    display: table-cell;
+
+}
+.items{
+    display: flex;
+    flex-grow: 1;
+    justify-content: flex-start;
+    flex-direction: row;
+    align-items: flex-end;
+    width: 33%;
+}
+button{
+    border: 1px solid;
+    border-radius: 20px;
+    padding: 5px;
+    padding-inline: 10px;
+}
