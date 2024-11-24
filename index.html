@@ -19,11 +19,12 @@
                     <span class="fas fa-cart-plus"></span> 
                     Checkout
                 </button>
-                <input type="search" id="searcher" v-model.trim="Query">
+                <input type="search" id="searcher" v-model.trim="Query" placeholder="Search">
             </header>
 
+            
             <div v-if="showProduct">
-                <div class="prodPage" style="width: 10%;">
+                <div class="prodPage" style="width: 10%;position: sticky;left: 0%;">
                     <h2>Sort By</h3>
                     <p><input type="radio" value="0" v-model="sortSetting">Name</p>
                     <p><input type="radio" value="1" v-model="sortSetting">Location</p>
@@ -33,9 +34,11 @@
                     <p><input type="radio" value="1" v-model="sortOrder">Ascending</p> 
                     <p><input type="radio" value="-1" v-model="sortOrder">Descending</p>
                 </div>
+
                 <div class="prodPage" v-if="emptySearch">
-                    <h2>There are no results matching your query</h2>
+                    <h2 style="text-align: center;">There are no results matching your query</h2>
                 </div>
+
                 <div class="prodPage">
                     <div style="display: inline-flex;flex-flow:wrap;">
                         <div class="items" v-for="club in sortedClubs">
@@ -144,7 +147,7 @@
                     },
                     findQuery: function(){
                         let clubsArray = this.clubs.slice(0);
-                        let searcher = RegExp(this.Query, "i", "g");
+                        let searcher = RegExp(this.Query, 'i', 'g');
                         let foundArray = [];
                         for (let i of clubsArray){
                             if(searcher.test(i.subject) || searcher.test(i.location))
@@ -162,8 +165,8 @@
                         let clubsArray = [];
                         if(this.Query !== ""){
                             clubsArray = this.findQuery();
-                            if(clubsArray.length == 0)
-                                this.emptySearch = true;
+                            if(clubsArray.length == 0){this.emptySearch = true}
+                            else this.emptySearch = false;
                         }
                         else {
                             clubsArray = this.clubs.slice(0);
