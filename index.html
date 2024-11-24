@@ -17,7 +17,9 @@
                 </button>
                 <button v-else disabled>
                     <span class="fas fa-cart-plus"></span> 
-                    Checkout</button>
+                    Checkout
+                </button>
+                <input type="search" id="searcher" v-model.trim="Query">
             </header>
 
             <div v-if="showProduct">
@@ -102,6 +104,8 @@
                     showProduct: true,
                     sitename: "After School Club",
                     cart: [],
+                    Query: "",
+                    emptySearch: false,
                     clubs: clubs,
                     order: {
                         firstName: '',
@@ -134,6 +138,16 @@
                         let toRemove = this.cart.indexOf(club.id);
                         this.cart.splice(toRemove, 1);
                         club.availableSlots ++;
+                    },
+                    findQuery: function(){
+                        let clubsArray = this.clubs.slice(0);
+                        let searcher = RegExp(this.Query, "i", "g");
+                        let foundArray = [];
+                        for (let i of clubsArray){
+                            if(searcher.test(i.subject) || searcher.test(i.location))
+                                foundArray.push(i);
+                        }
+                        return foundArray;
                     }
 
                 },
@@ -142,7 +156,11 @@
                         return this.cart.length || "";
                     },
                     sortedClubs() {
-                        let clubsArray = this.clubs.slice(0);
+                        let clubsArray = [];
+                        if(this.Query !== ""){
+                            clubsArray = this.findQuery();
+                        }
+                        else {clubsArray = this.clubs.slice(0);}
                         let sort = this.sortOrder
                         if(this.sortSetting == 1) {
                             function compare(a,b) { 
@@ -200,15 +218,13 @@
                         return clubsArray.filter(j => j.count > 0);
                     },
                     valueCheck: function(){
-                            let names = /^[a-z]+$/i
-                            let numbers = /^[0-9]+$/
-                            let empt = /\S/
-                            testValue = names.test(this.order.firstName) && names.test(this.order.lastName) && numbers.test(this.order.phone)
-                            emptyTest = empt.test(this.order.firstName) && empt.test(this.order.lastName) && empt.test(this.order.phone) && empt.test(this.order.emirate)
-                            return testValue && emptyTest
-                        }
-                        
-                    
+                        let names = /^[a-z]+$/i
+                        let numbers = /^[0-9]+$/
+                        let empt = /\S/
+                        testValue = names.test(this.order.firstName) && names.test(this.order.lastName) && numbers.test(this.order.phone)
+                        emptyTest = empt.test(this.order.firstName) && empt.test(this.order.lastName) && empt.test(this.order.phone) && empt.test(this.order.emirate)
+                        return testValue && emptyTest
+                    }                     
 
                 }
 
