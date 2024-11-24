@@ -33,6 +33,9 @@
                     <p><input type="radio" value="1" v-model="sortOrder">Ascending</p> 
                     <p><input type="radio" value="-1" v-model="sortOrder">Descending</p>
                 </div>
+                <div class="prodPage" v-if="emptySearch">
+                    <h2>There are no results matching your query</h2>
+                </div>
                 <div class="prodPage">
                     <div style="display: inline-flex;flex-flow:wrap;">
                         <div class="items" v-for="club in sortedClubs">
@@ -159,8 +162,13 @@
                         let clubsArray = [];
                         if(this.Query !== ""){
                             clubsArray = this.findQuery();
+                            if(clubsArray.length == 0)
+                                this.emptySearch = true;
                         }
-                        else {clubsArray = this.clubs.slice(0);}
+                        else {
+                            clubsArray = this.clubs.slice(0);
+                            this.emptySearch = false;
+                        }
                         let sort = this.sortOrder
                         if(this.sortSetting == 1) {
                             function compare(a,b) { 
