@@ -71,7 +71,7 @@
                         <p>Price: {{club.price}}</p>
                         <p>Spaces reserved: {{club.count}}</p >
                     </div>
-                    <div>
+                    <div style="display: flex;flex-direction: column;align-items: center;">
                         <input type="number" min="1" max="9" v-on:input="setMax($event, club)">
                         <button v-on:click="removeFromCart($event,club)">Remove from Cart</button>
                         <p></p>
