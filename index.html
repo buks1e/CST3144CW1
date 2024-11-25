@@ -63,7 +63,7 @@
             <div v-else>
                 <h2>Cart Items</h2>
                 <div style="display: inline-flex;align-items: flex-end;margin: 1%;" v-for="club in cartDisplay">
-                    <img v-bind:src="club.image" v-bind:alt="club.alt" style="height: 125px; width: 125px; display: inline-block;">
+                    <img v-bind:src="`http://localhost:3000/image/${club.image}`" v-bind:alt="club.alt" style="height: 125px; width: 125px; display: inline-block;">
                     <div style="display: inline-block;">
                         <h2 v-text="club.subject"></h2>
                         <p>Location: {{club.location}}</p>
@@ -71,7 +71,7 @@
                         <p>Spaces reserved: {{club.count}}</p >
                     </div>
                     <div style="display: flex;flex-direction: column;align-items: center;">
-                        <input type="number" min="1" max="9" v-on:input="setMax($event, club)">
+                        <input type="number" min="1" max="9" value="1" v-on:input="setMax($event, club)">
                         <button v-on:click="removeFromCart($event,club)">Remove from Cart</button>
                         <p></p>
                     </div>
@@ -138,7 +138,7 @@
                 },
                 methods: {
                     addCart: function(club) {
-                        this.cart.push(club.id);
+                        this.cart.push(club._id);
                         club.availableSlots --;
                     },
                     showCheckout: function(){
@@ -155,8 +155,9 @@
                         let removeBy = parseInt(item.parentNode.firstChild.value);
                         if(!isNaN(removeBy)){
                             for(let i = 0;i<removeBy;i++){
-                                let toRemove = this.cart.indexOf(club.id);
-                                this.cart.splice(toRemove, 1);
+                                let toRemove = this.cart.indexOf(club._id);
+                                let pap = this.cart.splice(toRemove, 1);
+                                console.log(typeof(pap[0]));
                             }
                             club.availableSlots = club.availableSlots + removeBy;
                             item.parentNode.firstChild.value = "";
@@ -252,7 +253,7 @@
                         
                         // Count occurrences in the cart
                         for (let i of this.cart) {
-                            let j = clubsArray.find(item => item.id == i);
+                            let j = clubsArray.find(item => item._id == i);
                             if (j != undefined) {j.count++;}
                         }
 
