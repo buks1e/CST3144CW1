@@ -22,6 +22,11 @@ MongoClient.connect('mongodb+srv://ibukundurodola:concreatures@cst3144cw.sx6hi.m
     db = client.db('Webstore');
 });
 
+app.use(function(request,response,next){
+    console.log("A "+ request.method + " request was sent to " +request.url);
+    next();
+});
+
 app.get("/", (req,res,next) => {
     res.send('Select a collection, e.g., /collection/messages');
 });
@@ -51,14 +56,14 @@ const imagePath=path.resolve(__dirname, "Images");
 app.use("/image",express.static(imagePath));
 
 app.post('/collection/:collectionName', (req,res,next) =>{
-    req.collection.insert(req.body, (e,results) =>{
+    req.collection.insertOne(req.body, (e,results) =>{
         if (e) return next(e);
         res.send(results.ops);
     })
 });
 
 app.put('/collection/:collectionName/:id', (req, res, next) => {
-    req.collection.update(
+    req.collection.updateOne(
         {_id: new ObjectID(req.params.id)},
         {$set: req.body},
         {safe: true, multi: false},
