@@ -16,6 +16,7 @@ let app = new Vue ({
             lastName: '',
             phone: '',
             emirate: '',
+            LessonIDs: []
         },
         emirates: {
             Du: 'Dubai',
@@ -39,11 +40,60 @@ let app = new Vue ({
             this.showProduct = this.showProduct ? false:true;
         },
         submitForm: function() {
+            let Cart = this.cart.slice(0);
+            let uniqueCart = [];
+            let LessonCount = [];
+            Cart.forEach(i =>{
+                if(uniqueCart.indexOf(i) == -1 ){
+                    uniqueCart.push(i);
+                    let dummy= {
+                        "_id": i,
+                        "count": 1
+                    }
+                    LessonCount.push(dummy);
+                }
+                else{
+                    LessonCount.forEach(j =>{
+                        if(j._id === i){
+                            j.count++
+                        }
+                    })
+                }
+            });
+            this.order.LessonIDs = LessonCount;
+            
+            fetch('http://localhost:3000/collection/Orders', {
+                method: 'POST', // set the HTTP method as 'POST'
+                headers: {
+                    'Content-Type': 'application/json', // set the data type as JSON
+                },
+                body: JSON.stringify(this.order), // need to stringify the JSON object
+            });
+            
+            this.order.LessonIDs.forEach(async i =>{
+                let current = await fetch(`http://localhost:3000/collection/Lessons/${i._id}`, {method: 'GET'})
+                .then(response => response.json())
+                .then(responseJSON => {return responseJSON})
+                .catch((error) => {console.log(error);});
+
+                let dummy = {availableSlots: current.availableSlots - i.count}
+                
+                fetch(`http://localhost:3000/collection/Lessons/${i._id}`, {
+                    method: 'PUT', // set the HTTP method as 'POST'
+                    headers: {
+                        'Content-Type': 'application/json', // set the data type as JSON
+                    },
+                    body: JSON.stringify(dummy), // need to stringify the JSON object
+                });
+            });
+            
             alert('Order Placed');
         },
+
         canAddToCart: function(club){
             return club.availableSlots > 0;
         },
+
         removeFromCart: function(event,club){
             const item = event.target;
             let removeBy = parseInt(item.parentNode.firstChild.value);
