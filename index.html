@@ -19,11 +19,10 @@
                     <span class="fas fa-cart-plus"></span> 
                     Checkout
                 </button>
-                <input type="search" v-if="showProduct" v-model.trim="Query" placeholder="Search">
+                <input type="search" v-if="showProduct" v-model.trim="Query" v-on:input="findQuery" placeholder="Search">
                 <input type="search" v-else disabled placeholder="Search">
             </header>
 
-            
             <div v-if="showProduct">
                 <div class="prodPage" style="width: 10%;position: sticky;left: 0%;">
                     <h2>Sort By</h3>
@@ -43,7 +42,7 @@
                 <div class="prodPage">
                     <div style="display: inline-flex;flex-flow:wrap;">
                         <div class="items" v-for="club in sortedClubs">
-                            <img v-bind:src="club.image" v-bind:alt="club.alt" style="height: 125px; width: 125px; display: inline-block;">
+                            <img v-bind:src="`http://localhost:3000/image/${club.image}`" v-bind:alt="club.alt" style="height: 125px; width: 125px; display: inline-block;">
                             <div class="info" style="display: inline-block;">
                                 <h2 v-text="club.subject"></h2>
                                 <p>Location: {{club.location}}</p>
@@ -105,7 +104,6 @@
                 <button v-else disabled v-on:click="submitForm">Place Order</button>
             </div>
         </div>
-        <script src="clubs.js"></script>
         <script>
             let app = new Vue ({
                 el: '#app',
@@ -116,8 +114,9 @@
                     sitename: "After School Club",
                     cart: [],
                     Query: "",
+                    SearchedClubs: [],
                     emptySearch: false,
-                    clubs: clubs,
+                    clubs: [],
                     order: {
                         firstName: '',
                         lastName: '',
@@ -130,6 +129,12 @@
                         Sh: 'Sharjah',
                         Aj: 'Ajman'
                     }
+                },
+                async created(){
+                    this.clubs =  await fetch('http://localhost:3000/collection/Lessons', {method: 'GET'})
+                    .then(response => response.json())
+                    .then(responseJSON => {return responseJSON})
+                    .catch((error) => {console.log(error);});
                 },
                 methods: {
                     addCart: function(club) {
@@ -157,15 +162,16 @@
                             item.parentNode.firstChild.value = "";
                         }
                     },
-                    findQuery: function(){
-                        let clubsArray = this.clubs.slice(0);
-                        let searcher = RegExp(this.Query, 'i', 'g');
-                        let foundArray = [];
-                        for (let i of clubsArray){
-                            if(searcher.test(i.subject) || searcher.test(i.location))
-                                foundArray.push(i);
+                    findQuery: async function(){
+                        let empt = /\S/;
+                        if(empt.test(this.Query)){
+                            let foundArray =  await fetch(`http://localhost:3000/search/Lessons/${this.Query}`, {method: 'GET'})
+                            .then(response => response.json())
+                            .then(responseJSON => {return responseJSON})
+                            .catch((error) => {console.log(error);});
+                            this.SearchedClubs = foundArray;
                         }
-                        return foundArray;
+                        else {this.SearchedClubs = [];}
                     },
                     setMax: function(event, club) {
                         const item = event.target;
@@ -181,14 +187,16 @@
                     }
 
                 },
+
                 computed:{
                     cartItemCount: function(){
                         return this.cart.length || "";
                     },
-                    sortedClubs() {
+                    sortedClubs: function() {
                         let clubsArray = [];
-                        if(this.Query !== ""){
-                            clubsArray = this.findQuery();
+                        let empt = /\S/
+                        if(empt.test(this.Query)){
+                            clubsArray = this.SearchedClubs.slice(0);
                             if(clubsArray.length == 0){this.emptySearch = true}
                             else this.emptySearch = false;
                         }
@@ -233,7 +241,6 @@
                                 return 0;
                             }
                         }
-
                         return clubsArray.sort(compare); 
                     },
                     cartDisplay: function(){
