@@ -81,11 +81,20 @@ app.delete('/collection/:collectionName/:id', (req, res, next) => {
 })
 
 app.get('/search/:collectionName/:searchText', (req,res,next) =>{
-    let searchText = RegExp(req.params.searchText);
-    req.collection.find({$or: [{subject: {$regex: searchText , $options: "i"}}, {location:{$regex: searchText, $options: "i"}}]}).toArray((e,results) => {
-        if(e) return next(e)
-            res.send(results);
-    })
+    checkNumb = isNaN(parseInt(req.params.searchText));
+    if(checkNumb){
+        let searchText = RegExp(req.params.searchText);
+        req.collection.find({$or: [{subject: {$regex: searchText , $options: "i"}}, {location:{$regex: searchText, $options: "i"}}]}).toArray((e,results) => {
+            if(e) return next(e)
+                res.send(results);
+    });}
+
+    else{
+        let searchText = parseInt(req.params.searchText);
+        req.collection.find({$or: [{price: searchText}, {availableSlots: searchText}]}).toArray((e,results) => {
+            if(e) return next(e)
+                res.send(results);
+        });}
 });
 
 const port = process.env.PORT || 3000;
