@@ -25,12 +25,14 @@ let app = new Vue ({
             Aj: 'Ajman'
         }
     },
+
     async created(){
         this.clubs =  await fetch('http://localhost:3000/collection/Lessons', {method: 'GET'})
         .then(response => response.json())
         .then(responseJSON => {return responseJSON})
         .catch((error) => {console.log(error);});
     },
+
     methods: {
         addCart: function(club) {
             this.cart.push(club._id);
@@ -46,8 +48,10 @@ let app = new Vue ({
             Cart.forEach(i =>{
                 if(uniqueCart.indexOf(i) == -1 ){
                     uniqueCart.push(i);
+                    let currentClub = this.clubs.find(x => {return x._id == i});
                     let dummy= {
                         "_id": i,
+                        "subject": currentClub.subject,
                         "count": 1
                     }
                     LessonCount.push(dummy);
