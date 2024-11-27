@@ -42,7 +42,7 @@
                 <div class="prodPage">
                     <div style="display: inline-flex;flex-flow:wrap;">
                         <div class="items" v-for="club in sortedClubs">
-                            <img v-bind:src="`http://localhost:3000/image/${club.image}`" v-bind:alt="club.alt" style="height: 125px; width: 125px; display: inline-block;">
+                            <img v-bind:src="`${hostLink}/image/${club.image}`" v-bind:alt="club.alt" style="height: 125px; width: 125px; display: inline-block;">
                             <div class="info" style="display: inline-block;">
                                 <h2 v-text="club.subject"></h2>
                                 <p>Location: {{club.location}}</p>
@@ -63,7 +63,7 @@
             <div v-else>
                 <h2>Cart Items</h2>
                 <div style="display: inline-flex;align-items: flex-end;margin: 1%;" v-for="club in cartDisplay">
-                    <img v-bind:src="`http://localhost:3000/image/${club.image}`" v-bind:alt="club.alt" style="height: 125px; width: 125px; display: inline-block;">
+                    <img v-bind:src="`${hostLink}/image/${club.image}`" v-bind:alt="club.alt" style="height: 125px; width: 125px; display: inline-block;">
                     <div style="display: inline-block;">
                         <h2 v-text="club.subject"></h2>
                         <p>Location: {{club.location}}</p>
@@ -105,10 +105,11 @@
             </div>
         </div>
         <script>
-                    
+             
             let app = new Vue ({
                 el: '#app',
                 data: {
+                    hostLink: "https://cst3144cw1.onrender.com/",
                     sortSetting: 0,
                     sortOrder: 1,
                     showProduct: true,
@@ -134,7 +135,7 @@
                 },
 
                 async created(){
-                    this.clubs =  await fetch('http://localhost:3000/collection/Lessons', {method: 'GET'})
+                    this.clubs =  await fetch(`${hostLink}/collection/Lessons`, {method: 'GET'})
                     .then(response => response.json())
                     .then(responseJSON => {return responseJSON})
                     .catch((error) => {console.log(error);});
@@ -173,7 +174,7 @@
                         });
                         this.order.LessonIDs = LessonCount;
                         
-                        fetch('http://localhost:3000/collection/Orders', {
+                        fetch(`${hostLink}/collection/Orders`, {
                             method: 'POST', // set the HTTP method as 'POST'
                             headers: {
                                 'Content-Type': 'application/json', // set the data type as JSON
@@ -182,14 +183,14 @@
                         });
                         
                         this.order.LessonIDs.forEach(async i =>{
-                            let current = await fetch(`http://localhost:3000/collection/Lessons/${i._id}`, {method: 'GET'})
+                            let current = await fetch(`${hostLink}/collection/Lessons/${i._id}`, {method: 'GET'})
                             .then(response => response.json())
                             .then(responseJSON => {return responseJSON})
                             .catch((error) => {console.log(error);});
 
                             let dummy = {availableSlots: current.availableSlots - i.count}
                             
-                            fetch(`http://localhost:3000/collection/Lessons/${i._id}`, {
+                            fetch(`${hostLink}/collection/Lessons/${i._id}`, {
                                 method: 'PUT', // set the HTTP method as 'POST'
                                 headers: {
                                     'Content-Type': 'application/json', // set the data type as JSON
@@ -221,7 +222,7 @@
                     findQuery: async function(){
                         let empt = /\S/;
                         if(empt.test(this.Query)){
-                            let foundArray =  await fetch(`http://localhost:3000/search/Lessons/${this.Query}`, {method: 'GET'})
+                            let foundArray =  await fetch(`${hostLink}/search/Lessons/${this.Query}`, {method: 'GET'})
                             .then(response => response.json())
                             .then(responseJSON => {return responseJSON})
                             .catch((error) => {console.log(error);});
