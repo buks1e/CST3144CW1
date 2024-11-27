@@ -26,11 +26,11 @@ let app = new Vue ({
         }
     },
 
-    async created(){
-        this.clubs =  await fetch('http://localhost:3000/collection/Lessons', {method: 'GET'})
+    created(){
+        this.clubs = fetch('http://localhost:3000/collection/Lessons', {method: 'GET'})
         .then(response => response.json())
         .then(responseJSON => {return responseJSON})
-        .catch((error) => {console.log(error);});
+        .catch((error) => {console.log(error); return []});
     },
 
     methods: {
@@ -74,8 +74,8 @@ let app = new Vue ({
                 body: JSON.stringify(this.order), // need to stringify the JSON object
             });
             
-            this.order.LessonIDs.forEach(async i =>{
-                let current = await fetch(`http://localhost:3000/collection/Lessons/${i._id}`, {method: 'GET'})
+            this.order.LessonIDs.forEach(i =>{
+                let current = fetch(`http://localhost:3000/collection/Lessons/${i._id}`, {method: 'GET'})
                 .then(response => response.json())
                 .then(responseJSON => {return responseJSON})
                 .catch((error) => {console.log(error);});
@@ -111,10 +111,10 @@ let app = new Vue ({
                 item.parentNode.firstChild.value = "";
             }
         },
-        findQuery: async function(){
+        findQuery: function(){
             let empt = /\S/;
             if(empt.test(this.Query)){
-                let foundArray =  await fetch(`http://localhost:3000/search/Lessons/${this.Query}`, {method: 'GET'})
+                let foundArray = fetch(`http://localhost:3000/search/Lessons/${this.Query}`, {method: 'GET'})
                 .then(response => response.json())
                 .then(responseJSON => {return responseJSON})
                 .catch((error) => {console.log(error);});
