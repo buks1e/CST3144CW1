@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const path = require("path");
 const ObjectID = require('mongodb').ObjectID;
+const fs = require("fs");
 
 app.use(express.json());
 app.set('port',3000);
@@ -51,9 +52,22 @@ app.get('/collection/:collectionName', (req,res,next) =>{
     })
 });
 
-const imagePath=path.resolve(__dirname, "Images");
+app.use(function(req,res,next){
+    var filePath = path.join(__dirname, "Images", req.url);
+    fs.stat(filePath, function(err, fileInfo){
+        if(err){
+            next();
+            return;
+        }
+        if (fileInfo.isFile()) res.sendFile(filePath);
+        else next();
+    });
+});
 
-app.use("/image",express.static(imagePath));
+app.use(function(req,res,next){
+    res.status(404);
+    res.send("File not found");
+});
 
 app.post('/collection/:collectionName', (req,res,next) =>{
     req.collection.insertOne(req.body, (e,results) =>{
