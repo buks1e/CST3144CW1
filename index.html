@@ -42,7 +42,7 @@
                 <div class="prodPage">
                     <div style="display: inline-flex;flex-flow:wrap;">
                         <div class="items" v-for="club in sortedClubs">
-                            <img v-bind:src="`${this.hostLink}/image/${club.image}`" v-bind:alt="club.alt" style="height: 125px; width: 125px; display: inline-block;">
+                            <img v-bind:src="`${hostLink}/image/${club.image}`" v-bind:alt="club.alt" style="height: 125px; width: 125px; display: inline-block;">
                             <div class="info" style="display: inline-block;">
                                 <h2 v-text="club.subject"></h2>
                                 <p>Location: {{club.location}}</p>
@@ -63,7 +63,7 @@
             <div v-else>
                 <h2>Cart Items</h2>
                 <div style="display: inline-flex;align-items: flex-end;margin: 1%;" v-for="club in cartDisplay">
-                    <img v-bind:src="`${this.hostLink}/image/${club.image}`" v-bind:alt="club.alt" style="height: 125px; width: 125px; display: inline-block;">
+                    <img v-bind:src="`${hostLink}/image/${club.image}`" v-bind:alt="club.alt" style="height: 125px; width: 125px; display: inline-block;">
                     <div style="display: inline-block;">
                         <h2 v-text="club.subject"></h2>
                         <p>Location: {{club.location}}</p>
