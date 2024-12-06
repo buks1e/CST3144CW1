@@ -96,7 +96,8 @@ app.get('/search/:collectionName/:searchText', (req,res,next) =>{
 
     else{
         let searchText = parseInt(req.params.searchText);
-        req.collection.find({$or: [{price: searchText}, {availableSlots: searchText}]}).toArray((e,results) => {
+        let searchPrice = RegExp(req.params.searchText);
+        req.collection.find({$or: [ {price:{$regex: searchPrice, $options: "i"}}, {availableSlots: searchText}]}).toArray((e,results) => {
             if(e) return next(e)
                 res.send(results);
         });}
